@@ -29,9 +29,8 @@ public class GameMenu extends Application {
 
         menuView.getHostBtn().setOnAction(e -> {
             menuView.getMenu().setVisible(false);
-            roomView.getGameRoom().setVisible(true);  // Affiche la salle
+            roomView.getGameRoom().setVisible(true);
 
-            // Lancer le serveur
             GameServer server = new GameServer(roomView.getPlayerList());
             server.start();
         });
@@ -48,7 +47,13 @@ public class GameMenu extends Application {
             });
         });
 
-        //Screen prep
+        primaryStage.setOnCloseRequest(event -> {
+            System.out.println("Fermeture du jeu...");
+
+            System.exit(0);
+        });
+
+
         Scene scene = new Scene(root, 1400, 800);
 
         primaryStage.setScene(scene);

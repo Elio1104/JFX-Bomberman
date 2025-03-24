@@ -2,7 +2,6 @@ package technofutur.gamejfx;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 
 public class MenuHost {

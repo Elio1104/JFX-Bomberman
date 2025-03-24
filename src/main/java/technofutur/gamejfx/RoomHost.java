@@ -9,13 +9,11 @@ public class RoomHost {
 
     private final VBox gameRoom;
     private final ListView<String> playerList;
-    private Text roomStatus;
 
     public RoomHost() {
-        // Initialisation des éléments de la salle
         playerList = new ListView<>();
 
-        roomStatus = new Text("Salle en attente de joueurs...");
+        Text roomStatus = new Text("Salle en attente de joueurs...");
 
         gameRoom = new VBox(10, roomStatus, playerList);
         gameRoom.setAlignment(Pos.CENTER);
@@ -23,6 +21,8 @@ public class RoomHost {
 
         gameRoom.setMaxWidth(200);
         gameRoom.setMaxHeight(300);
+
+        playerList.getItems().add("👑 Host");
     }
 
     // Getters
