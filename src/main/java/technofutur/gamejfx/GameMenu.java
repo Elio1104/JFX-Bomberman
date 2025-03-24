@@ -1,46 +1,58 @@
 package technofutur.gamejfx;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import technofutur.gamejfx.menu.GameRoomView;
-import technofutur.gamejfx.menu.MenuView;
 
 public class GameMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Root container
-        HBox root = new HBox();
 
-        // Création des vues
-        MenuView menuView = new MenuView();
-        GameRoomView gameRoomView = new GameRoomView();
+        StackPane root = new StackPane();
+        root.setAlignment(Pos.CENTER);
 
-        // Ajout des vues au conteneur racine
-        root.getChildren().addAll(menuView.getMenuLayout(), gameRoomView.getGameRoomLayout());
+        root.setStyle(
+                "-fx-background-image: url('Wallpaper3.jpg');" +
+                        "-fx-background-size: cover;" +
+                        "-fx-background-position: center center;"
+        );
 
-        // Actions pour les boutons
-        menuView.getHostButton().setOnAction(e -> {
-            menuView.getMenuLayout().setVisible(false);
-            gameRoomView.getGameRoomLayout().setVisible(true);
-            GameServer server = new GameServer(gameRoomView.getPlayerList());
+        MenuHost menuView = new MenuHost();
+        root.getChildren().add(menuView.getMenu());
+
+        RoomHost roomView = new RoomHost();
+        root.getChildren().add(roomView.getGameRoom());
+
+        menuView.getHostBtn().setOnAction(e -> {
+            menuView.getMenu().setVisible(false);
+            roomView.getGameRoom().setVisible(true);  // Affiche la salle
+
+            // Lancer le serveur
+            GameServer server = new GameServer(roomView.getPlayerList());
             server.start();
         });
 
-        menuView.getJoinButton().setOnAction(e -> {
-            gameRoomView.getPlayerList().getItems().add("En attente...");
-            // Connexion au serveur
-            GameClient client = new GameClient("127.0.0.1");
-            client.connect();
+        menuView.getJoinBtn().setOnAction(e -> {
+            TextInputDialog dialog = new TextInputDialog("127.0.0.1");
+            dialog.setTitle("Connexion");
+            dialog.setHeaderText("Rejoindre une partie");
+            dialog.setContentText("Entrez l'adresse IP du serveur:");
+
+            dialog.showAndWait().ifPresent(ip -> {
+                GameClient client = new GameClient(ip);
+                client.connect();
+            });
         });
 
-        // Préparation de la scène
-        Scene scene = new Scene(root, 700, 700);
+        //Screen prep
+        Scene scene = new Scene(root, 1400, 800);
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("Game Menu");
-        primaryStage.setFullScreen(true);
         primaryStage.show();
     }
 
@@ -48,5 +60,3 @@ public class GameMenu extends Application {
         launch(args);
     }
 }
-
-

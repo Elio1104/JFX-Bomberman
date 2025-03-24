@@ -1,12 +1,12 @@
 package technofutur.gamejfx;
 
+import javafx.application.Platform;
+import javafx.scene.control.ListView;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
-import javafx.scene.control.ListView;
 
 public class GameServer {
     private static final int PORT = 5000;
@@ -21,16 +21,12 @@ public class GameServer {
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(PORT)) {
                 System.out.println("Serveur en attente de connexions...");
-
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
                     clients.add(clientSocket);
-
-                    // Ajouter un joueur à la ListView
                     Platform.runLater(() -> {
                         playerListView.getItems().add("Joueur " + clients.size());
                     });
-
                     System.out.println("Nouveau joueur connecté !");
                 }
             } catch (IOException e) {
