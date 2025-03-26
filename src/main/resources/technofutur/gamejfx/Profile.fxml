@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:id="profileBox"
+      spacing="10"
+      alignment="CENTER_LEFT"
+      fx:controller="technofutur.gamejfx.ProfileController"
+      style="-fx-background-color: rgba(255, 255, 255, 0.85);
+             -fx-border-color: gray;
+             -fx-border-radius: 15;
+             -fx-background-radius: 15;
+             -fx-padding: 10;">
+
+    <ImageView fx:id="profileImage" fitWidth="100" fitHeight="100" />
+
+    <VBox spacing="5">
+        <Label fx:id="pseudoLabel" style="-fx-font-weight: bold; -fx-font-size: 20px;"/>
+        <VBox spacing="10">
+            <Label fx:id="winLabel" style="-fx-text-fill: green; -fx-font-size: 20px;"/>
+            <Label fx:id="looseLabel" style="-fx-text-fill: red; -fx-font-size: 20px;"/>
+        </VBox>
+    </VBox>
+</HBox>

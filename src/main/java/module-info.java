@@ -10,6 +10,7 @@ module technofutur.gamejfx {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires com.fasterxml.jackson.databind;
 
     opens technofutur.gamejfx to javafx.fxml;
     exports technofutur.gamejfx;
