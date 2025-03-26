@@ -2,7 +2,6 @@ package technofutur.gamejfx;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,62 +12,57 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class GameMenu extends Application {
+
     private Player player;
+    private BorderPane mainPage, roomPage;
+    private AnchorPane profileWrapper;
+    private MenuHost menuView;
+    private RoomHost roomView;
+    private GameClient client;
+    private GameServer server;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("profile.fxml"));
         Parent profile = loader.load();
-
         player = Player.playerFromJson("src/main/resources/save.json");
         if (player == null) {
-            System.err.println("Erreur de chargement du joueur à partir du JSON.");
-            player = new Player("Joueur par défaut", 0, 0);
+            System.err.println("Erreur JSON player");
+            player = new Player("Défaut", 0, 0, "/technofutur/gamejfx/default-profile.jpg");
         }
+        loader.<ProfileController>getController().setPlayer(player);
 
-        ProfileController controller = loader.getController();
-        controller.setPlayer(player);
-
-        // Structure propre : StackPane racine
         StackPane root = new StackPane();
 
-        // BorderPane centre pour gérer précisément les composants principaux
-        BorderPane mainContentPane = new BorderPane();
-        mainContentPane.setStyle(
+        menuView = new MenuHost();
+        mainPage = new BorderPane(new HBox(20, menuView.getMenu()));
+        mainPage.setStyle(
                 "-fx-background-image: url('Wallpaper3.jpg');" +
                         "-fx-background-size: cover;" +
-                        "-fx-background-position: center center;"
+                        "-fx-background-position: center;"
         );
+        ((HBox) mainPage.getCenter()).setAlignment(Pos.CENTER);
 
-        // Centre : boutons centrés parfaitement
-        HBox mainMenuBox = new HBox(20);
-        mainMenuBox.setAlignment(Pos.CENTER);
+        roomView = new RoomHost();
+        roomPage = new BorderPane(new HBox(20, roomView.getGameRoom()));
+        roomPage.setStyle(
+                "-fx-background-image: url('Wallpaper3.jpg');" +
+                        "-fx-background-size: cover;" +
+                        "-fx-background-position: center;"
+        );
+        ((HBox) roomPage.getCenter()).setAlignment(Pos.CENTER);
+        roomPage.setVisible(false);
 
-        MenuHost menuView = new MenuHost();
-        RoomHost roomView = new RoomHost();
-        mainMenuBox.getChildren().add(menuView.getMenu());
 
-        mainContentPane.setCenter(mainMenuBox);
-
-        // Solution claire idéale avec AnchorPane
-        AnchorPane profileWrapper = new AnchorPane(profile);
+        profileWrapper = new AnchorPane(profile);
         AnchorPane.setTopAnchor(profile, 15.0);
         AnchorPane.setRightAnchor(profile, 15.0);
+        profileWrapper.setPickOnBounds(false);
 
-// Ajout immédiat, précis et explicite
-        root.getChildren().addAll(mainContentPane, profileWrapper);
+        root.getChildren().addAll(mainPage, roomPage, profileWrapper);
 
-        // Événements inchangés (Host / Join)
-        menuView.getHostBtn().setOnAction(e -> {
-            menuView.getMenu().setVisible(false);
-            roomView.getGameRoom().setVisible(true);
-            if (!mainMenuBox.getChildren().contains(roomView.getGameRoom())) {
-                mainMenuBox.getChildren().add(roomView.getGameRoom());
-            }
-
-            GameServer server = new GameServer(roomView.getPlayerList());
-            server.start();
-        });
+        menuView.getHostBtn().setOnAction(e -> showRoomPage());
 
         menuView.getJoinBtn().setOnAction(e -> {
             TextInputDialog dialog = new TextInputDialog("127.0.0.1");
@@ -77,13 +71,14 @@ public class GameMenu extends Application {
             dialog.setContentText("Entrez l'adresse IP du serveur:");
 
             dialog.showAndWait().ifPresent(ip -> {
-                GameClient client = new GameClient(ip);
+                client = new GameClient(ip);
                 client.connect();
             });
         });
 
         primaryStage.setOnCloseRequest(event -> {
-            System.out.println("Fermeture du jeu...");
+            if (client != null)
+                client.disconnect();
             System.exit(0);
         });
 
@@ -92,6 +87,18 @@ public class GameMenu extends Application {
         primaryStage.setTitle("Game Menu");
         primaryStage.show();
     }
+
+    private void showRoomPage() {
+        mainPage.setVisible(false);
+        roomPage.setVisible(true);
+        profileWrapper.setVisible(false);
+        roomView.getGameRoom().setVisible(true);
+
+        roomView.afficherPseudoHote(player.getPseudo()); // player chargé depuis JSON au lancement du jeu
+        server = new GameServer(roomView, player); // Si tu utilises un constructeur avec Player
+        server.start();
+    }
+
 
     public static void main(String[] args) {
         launch(args);

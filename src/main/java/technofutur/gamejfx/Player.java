@@ -5,18 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 
 public class Player {
-    String pseudo;
-    int win;
-    int loose;
-    String profilePic;
+    private String pseudo;
+    private int win;
+    private int loose;
+    private String profilePic;
 
-    public Player() {}
+    public Player() { }
 
-    public Player(String pseudo, int win, int loose) {
+    public Player(String pseudo, int win, int loose, String profilePic) {
         this.pseudo = pseudo;
         this.win = win;
         this.loose = loose;
-        this.profilePic = "profil-pic.jpg";
+        this.profilePic = profilePic;
     }
 
     public static Player playerFromJson(String save) {

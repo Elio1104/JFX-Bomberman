@@ -5,7 +5,6 @@
 <?import javafx.scene.image.*?>
 
 <HBox xmlns:fx="http://javafx.com/fxml"
-      fx:id="profileBox"
       spacing="10"
       alignment="CENTER_LEFT"
       fx:controller="technofutur.gamejfx.ProfileController"
@@ -17,7 +16,7 @@
 
     <ImageView fx:id="profileImage" fitWidth="100" fitHeight="100" />
 
-    <VBox spacing="5">
+    <VBox spacing="5" alignment="CENTER">
         <Label fx:id="pseudoLabel" style="-fx-font-weight: bold; -fx-font-size: 20px;"/>
         <VBox spacing="10">
             <Label fx:id="winLabel" style="-fx-text-fill: green; -fx-font-size: 20px;"/>

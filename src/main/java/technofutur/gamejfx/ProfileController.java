@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.io.InputStream;
 import java.util.Objects;
 
 public class ProfileController {
@@ -26,16 +27,19 @@ public class ProfileController {
         winLabel.setText("Victoires : " + player.getWin());
         looseLabel.setText("Défaites : " + player.getLoose());
 
-        try {
-            String imagePath = player.getProfilePic();
-            Image profilePicImage = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream(imagePath),
-                    "Impossible de trouver l'image : " + imagePath
-            ));
-            profileImage.setImage(profilePicImage);
-        } catch (Exception e) {
-            System.err.println("Impossible de charger l'image du profil : " + e.getMessage());
-            e.printStackTrace();
+        String imagePath = player.getProfilePic();
+        InputStream imageStream = getClass().getResourceAsStream(imagePath);
+
+        if (imageStream == null) {
+            System.err.println("Image non trouvée (" + imagePath + "). Chargement de l'image par défaut.");
+            imageStream = getClass().getResourceAsStream("/technofutur/gamejfx/default-profile.jpg");
+
+            if (imageStream == null) {
+                throw new IllegalStateException("L'image par défaut n'existe pas à l'emplacement '/technofutur/gamejfx/default-profile.jpg'");
+            }
         }
+
+        Image profilePicImage = new Image(imageStream);
+        profileImage.setImage(profilePicImage);
     }
 }
