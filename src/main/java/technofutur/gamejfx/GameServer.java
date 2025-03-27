@@ -13,7 +13,7 @@ public class GameServer {
     private static final int PORT = 5000;
     private final List<ClientHandler> clients = new ArrayList<>();
     private final RoomHost roomHost;
-    private AtomicInteger playerIdCounter = new AtomicInteger(1);
+    private final AtomicInteger playerIdCounter = new AtomicInteger(1);
     private final Player hostPlayer;
 
     public GameServer(RoomHost roomHost, Player hostPlayer) {
@@ -56,9 +56,7 @@ public class GameServer {
 
     private void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
-        Platform.runLater(() -> {
-            roomHost.setSlotToWaiting(clientHandler.playerId);
-        });
+        Platform.runLater(() -> roomHost.setSlotToWaiting(clientHandler.playerId));
         playerIdCounter.decrementAndGet();
     }
 

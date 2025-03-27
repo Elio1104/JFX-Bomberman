@@ -4,7 +4,7 @@ public class QuickClient {
     public static void main(String[] args) {
         String ip = "127.0.0.1";
 
-        Player testPlayer = new Player("Testeur", 10, 7, "/Wallpaper2.jpg"); // Utilisez une image existante.
+        Player testPlayer = new Player("Bonjoooouurr", 57, 7, "/profil-pic.jpg"); // Utilisez une image existante.
 
         GameClient quickClient = new GameClient(ip);
         quickClient.connect(testPlayer);
