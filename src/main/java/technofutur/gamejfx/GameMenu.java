@@ -17,7 +17,7 @@ public class GameMenu extends Application {
     private BorderPane mainPage, roomPage;
     private AnchorPane profileWrapper;
     private MenuHost menuView;
-    private RoomHost roomView;
+    private static RoomHost roomView;
     private GameClient client;
     private GameServer server;
 
@@ -72,7 +72,7 @@ public class GameMenu extends Application {
 
             dialog.showAndWait().ifPresent(ip -> {
                 client = new GameClient(ip);
-                client.connect();
+                client.connect(player);
             });
         });
 
@@ -94,11 +94,14 @@ public class GameMenu extends Application {
         profileWrapper.setVisible(false);
         roomView.getGameRoom().setVisible(true);
 
-        roomView.afficherPseudoHote(player.getPseudo()); // player chargé depuis JSON au lancement du jeu
-        server = new GameServer(roomView, player); // Si tu utilises un constructeur avec Player
+        roomView.afficherPseudoHote(player.getPseudo());
+        server = new GameServer(roomView, player);
         server.start();
     }
 
+    public static RoomHost getRoomHost() {
+        return roomView;
+    }
 
     public static void main(String[] args) {
         launch(args);

@@ -1,29 +1,31 @@
 package technofutur.gamejfx;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class GameClient {
     private String serverIP;
     private static final int PORT = 5000;
     private Socket socket;
+    private ObjectOutputStream output;
 
     public GameClient(String serverIP) {
         this.serverIP = serverIP;
     }
 
-    public void connect() {
+    public void connect(Player currentPlayer) {
         new Thread(() -> {
             try {
                 socket = new Socket(serverIP, PORT);
-                System.out.println("Connecté au serveur !");
+                output = new ObjectOutputStream(socket.getOutputStream());
+                output.writeObject(currentPlayer);
             } catch (IOException e) {
-                System.out.println("Impossible de se connecter au serveur !");
+                e.printStackTrace();
             }
         }).start();
     }
 
-    // Ajout cette methode à appeler en cas de fermeture propre coté client:
     public void disconnect() {
         try {
             if (socket != null && !socket.isClosed()) {
@@ -34,4 +36,3 @@ public class GameClient {
         }
     }
 }
-

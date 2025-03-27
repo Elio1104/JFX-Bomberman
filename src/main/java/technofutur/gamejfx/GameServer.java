@@ -2,6 +2,7 @@ package technofutur.gamejfx;
 
 import javafx.application.Platform;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -36,16 +37,21 @@ public class GameServer {
     }
 
     private void handleClientConnection(Socket socket) {
-        int playerId = playerIdCounter.getAndIncrement();
+        new Thread(() -> {
+            try {
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+                Player receivedPlayer = (Player) input.readObject();
+                int playerId = playerIdCounter.getAndIncrement();
 
-        // Création d'un joueur par défaut avec pseudo et stats initiales
-        Player newPlayer = new Player("Joueur " + (playerId + 1), 0, 0, "/technofutur/gamejfx/default-profile.jpg");
+                ClientHandler clientHandler = new ClientHandler(socket, receivedPlayer, playerId, input);
+                clients.add(clientHandler);
+                clientHandler.start();
 
-        ClientHandler clientHandler = new ClientHandler(socket, newPlayer, playerId);
-        clients.add(clientHandler);
-        clientHandler.start();
-
-        Platform.runLater(() -> roomHost.updatePlayerSlot(playerId, newPlayer));
+                Platform.runLater(() -> roomHost.updatePlayerSlot(playerId, receivedPlayer));
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void removeClient(ClientHandler clientHandler) {
@@ -56,37 +62,42 @@ public class GameServer {
         playerIdCounter.decrementAndGet();
     }
 
-    // Classe interne pour gérer chaque joueur
     private class ClientHandler extends Thread {
         private final Socket socket;
         private final int playerId;
         private final Player player;
+        private final ObjectInputStream input;
 
-        ClientHandler(Socket socket, Player player, int playerId) {
+        ClientHandler(Socket socket, Player player, int playerId, ObjectInputStream input) {
             this.socket = socket;
             this.player = player;
             this.playerId = playerId;
+            this.input = input;
         }
 
         @Override
         public void run() {
             System.out.println(player.getPseudo() + " connecté depuis : " + socket.getInetAddress());
 
-
             try {
-                // Attend simplement que la connexion soit coupée par le joueur
-                socket.getInputStream().read(); // bloquant jusqu'à déconnexion
-
-            } catch (IOException e) {
-                System.out.println(player.getPseudo() + " s'est déconnecté (erreur).");
-            } finally {
-                try {
-                    socket.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                while (!socket.isClosed()) {
+                    Object message = input.readObject();
+                    System.out.println(player.getPseudo() + " a envoyé un message : " + message);
                 }
+            } catch (IOException e) {
+                System.out.println(player.getPseudo() + " déconnecté (" + e.getMessage() + ")");
+            } catch (ClassNotFoundException e) {
+                System.err.println("Erreur de classe du message reçu : " + e.getMessage());
+            } finally {
                 removeClient(this);
-                System.out.println(player.getPseudo() + " a quitté la salle.");
+                try {
+                    input.close();
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(player.getPseudo() + " a quitté la salle proprement.");
+                Platform.runLater(() -> roomHost.setSlotToWaiting(playerId));
             }
         }
     }
